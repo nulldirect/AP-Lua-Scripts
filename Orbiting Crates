@@ -1,0 +1,54 @@
+local crate = launchCrate(1, InternalHRP.Position+Vector3.new(0,10,0), InternalHRP.Position - Vector3.new(1, 1, 1), 0, nil, true)
+local circlePlayer = true
+local radius = 20
+local angle = 0
+local speed = 4 -- acceleration
+local xv, yv, elevV = 0, 0, 0
+local targetElev=20
+local RunService = game:GetService("RunService")
+local connection
+connection=RunService.Heartbeat:Connect(function(dt)
+	if not crate or not crate.Parent then
+
+		connection:Disconnect()
+	end
+	if circlePlayer then 
+		local cenx, ceny, cenelev = InternalHRP.Position.X, InternalHRP.Position.Z, InternalHRP.Position.Y
+		local pos = crate.Position
+		local curx, cury, curelev = pos.X, pos.Z, pos.Y
+
+		angle = (angle + 0.05) % (2 * math.pi)
+
+		local tarx = cenx + math.cos(angle) * radius
+		local tary = ceny + math.sin(angle) * radius
+
+		local origin=Vector3.new(pos.X,pos.Y,pos.Z)
+        local rayDest = Vector3.new(pos.X,0,pos.Z)
+        local raydire=rayDest-origin
+        local rayresu = workspace:Raycast(origin, raydire)
+		local floorDist=200
+		if rayresu then
+			floorDist = rayresu.Distance
+		end
+		local xdist = tarx - curx
+		local ydist = tary - cury
+        local elevdif = targetElev - floorDist --if targetElev>floorDist then accel up
+		local dist = math.sqrt(xdist * xdist + ydist * ydist)
+		local accelElev = (elevdif/100) * speed
+		elevV = elevV + accelElev * dt * 60
+		if dist > 0 then
+			local accelX = xdist / dist * speed
+			local accelY = ydist / dist * speed
+			xv = xv + accelX * dt * 60
+			yv = yv + accelY * dt * 60
+		end
+
+
+
+	end
+	local friction = 0.99 ^ (dt * 60)
+	xv = xv * friction
+	yv = yv * friction
+    elevV = elevV * friction
+	crate.BodyVelocity.Velocity = Vector3.new(xv, elevV, yv)
+end)
