@@ -1,0 +1,7 @@
+local RPG = InternalPlayer.Backpack:FindFirstChild("RPG") or InternalCharacter:FindFirstChild("RPG")
+local ToolSvcsRE = RPG:FindFirstChild("ToolSvcsRE")
+InternalHumanoid:UnequipTools()
+InternalHumanoid:EquipTool(RPG)
+ToolSvcsRE:FireServer("mouse-down", "RPGAmmo", InternalHRP.Position + Vector3.new(0, 1, 0), Vector3.new(0,150,0))
+ToolSvcsRE:FireServer("mouse-up")
+InternalHumanoid:UnequipTools()
